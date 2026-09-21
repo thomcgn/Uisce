@@ -1,6 +1,6 @@
 # Irish Phonetic Engine
 
-Full-Stack-Projekt für eine regelbasierte und lexikongestützte Analyse der irischen Aussprache. Der aktuelle Stand erweitert **Phase 4: Engine** um eine PostgreSQL-Datenbank mit quellgebundenen IPA-Varianten. REST-API und Eingabeoberfläche folgen in späteren Phasen.
+Full-Stack-Projekt für eine regelbasierte und lexikongestützte Analyse der irischen Aussprache. **Phase 5: REST-API** stellt die Engine einschließlich quellgebundener IPA-Varianten bereit. Die Eingabeoberfläche folgt in Phase 6.
 
 ## Architektur
 
@@ -29,7 +29,17 @@ npm install
 npm run dev
 ```
 
-Backend: <http://localhost:8080>; Frontend: <http://localhost:3000>. Da noch kein API-Endpunkt existiert, liefert die Backend-Startseite derzeit 404. PostgreSQL ist lokal auf Port 5433 erreichbar.
+Backend: <http://localhost:8080>; Frontend: <http://localhost:3000>. Die Backend-Startseite liefert 404; die API liegt unter `/api/v1/analysis`. PostgreSQL ist lokal auf Port 5433 erreichbar.
+
+## Analyse-API
+
+```bash
+curl -s http://localhost:8080/api/v1/analysis \
+  -H 'Content-Type: application/json' \
+  -d '{"word":"Dia"}'
+```
+
+`POST /api/v1/analysis` erwartet ein JSON-Objekt mit einem nicht leeren `word`. Die Antwort enthält `word`, `ipa`, `pronunciationHint`, `segments` und `pronunciations`. Lexikoneinträge erscheinen in `pronunciations` mit IPA, Dialektangaben, Quell-URL und Prüfstatus `SOURCED`. Bei mehreren verschiedenen IPA-Varianten bleibt das einzelne `ipa`-Feld leer. Leere Eingaben und ungültiges JSON liefern HTTP 400 mit `code` und `message`; nicht abgedeckte Wörter liefern HTTP 422 (`UNSUPPORTED_ANALYSIS`).
 
 ## Prüfen
 
