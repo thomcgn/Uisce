@@ -1,8 +1,30 @@
 services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: uisce
+      POSTGRES_USER: uisce
+      POSTGRES_PASSWORD: ${UISCE_DB_PASSWORD:-}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U uisce -d uisce"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
   backend:
     build: ./backend
+    environment:
+      UISCE_JDBC_URL: jdbc:postgresql://db:5432/uisce
+      UISCE_DB_USER: uisce
+      UISCE_DB_PASSWORD: ${UISCE_DB_PASSWORD:-}
     ports:
       - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
   frontend:
     build:
       context: ./frontend
@@ -14,3 +36,6 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+
+volumes:
+  postgres_data:

@@ -1,10 +1,14 @@
 package de.irishphonetics.phonology.domain;
 
-final class IrishOrthography {
+public final class IrishOrthography {
     private static final String BROAD_VOWELS = "aáoóuú";
     private static final String SLENDER_VOWELS = "eéií";
 
     private IrishOrthography() {
+    }
+
+    public static boolean isVowel(String grapheme) {
+        return vowelQuality(grapheme) != null;
     }
 
     static Quality vowelQuality(String grapheme) {
