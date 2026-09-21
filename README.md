@@ -1,6 +1,6 @@
 # Irish Phonetic Engine
 
-Full-Stack-Projekt für eine regelbasierte und lexikongestützte Analyse der irischen Aussprache. **Phase 5: REST-API** stellt die Engine einschließlich quellgebundener IPA-Varianten bereit. Die Eingabeoberfläche folgt in Phase 6.
+Full-Stack-Projekt für eine regelbasierte und lexikongestützte Analyse der irischen Aussprache. **Phase 6: Frontend** verbindet die Eingabeoberfläche mit der REST-API und zeigt IPA-Varianten, Dialekte und Quellen an.
 
 ## Architektur
 
@@ -31,6 +31,16 @@ npm run dev
 
 Backend: <http://localhost:8080>; Frontend: <http://localhost:3000>. Die Backend-Startseite liefert 404; die API liegt unter `/api/v1/analysis`. PostgreSQL ist lokal auf Port 5433 erreichbar.
 
+Auf der Startseite ein irisches Wort eingeben oder ein Beispiel wählen. Ein eindeutiger IPA-Wert wird groß angezeigt; bei mehreren verschiedenen Aussprachen erscheinen die Varianten einzeln. Nicht abgedeckte Wörter und Verbindungsprobleme werden als Fehlermeldung dargestellt.
+
+Im Feld **Deine Muttersprache** lässt sich derzeit `Deutsch` oder `Nur IPA` auswählen. Das deutsche Modul liefert eine vereinfachte Lesehilfe für unterstützte IPA-Zeichen, auch für einzelne Aussprachevarianten. Es ersetzt die IPA-Transkription nicht und bildet insbesondere die irische Unterscheidung zwischen breiten und schmalen Konsonanten nur annähernd ab. Für nicht unterstützte IPA-Zeichen bleibt die Lesehilfe leer. Weitere Sprachen können als eigenes `PronunciationGuide`-Modul ergänzt werden.
+
+Alle 14.970 IPA-Varianten des eingebundenen Lexikons erhalten eine deutsche Lesehilfe. Bei Lauten, die sich mit deutscher Schreibweise leicht verwechseln lassen, erscheinen zusätzliche Hinweise an der Variante, etwa `ch wie in Bach`, `ch wie in ich` oder ein Hinweis auf nasale Vokale. Diese Umschrift ist eine systematische Annäherung und keine fachlich geprüfte deutsche Lautung jedes Wortes.
+
+Die Hinweise verwenden vertraute Beispielwörter: IPA `/dʒ/` wird als `dsch wie in Dschungel` erklärt (wie der Anlaut von englisch `jaw`). Das irische `/ɟ/` erhält einen eigenen Hinweis als weiches `g` am Gaumen, weil es nicht derselbe Laut ist.
+
+Die deutsche Hilfe liest die belegten Varianten von `Sláinte` beispielsweise als `Slaan-che`. Schmale Konsonanten erhalten nicht mehr pauschal ein angehängtes `j`; die Darstellung bleibt bewusst eine Annäherung.
+
 ## Analyse-API
 
 ```bash
@@ -39,7 +49,7 @@ curl -s http://localhost:8080/api/v1/analysis \
   -d '{"word":"Dia"}'
 ```
 
-`POST /api/v1/analysis` erwartet ein JSON-Objekt mit einem nicht leeren `word`. Die Antwort enthält `word`, `ipa`, `pronunciationHint`, `segments` und `pronunciations`. Lexikoneinträge erscheinen in `pronunciations` mit IPA, Dialektangaben, Quell-URL und Prüfstatus `SOURCED`. Bei mehreren verschiedenen IPA-Varianten bleibt das einzelne `ipa`-Feld leer. Leere Eingaben und ungültiges JSON liefern HTTP 400 mit `code` und `message`; nicht abgedeckte Wörter liefern HTTP 422 (`UNSUPPORTED_ANALYSIS`).
+`POST /api/v1/analysis` erwartet ein JSON-Objekt mit einem nicht leeren `word` und optional `nativeLanguage` (`de`, standardmäßig, oder `none`). Die Antwort enthält `word`, `ipa`, `pronunciationHint`, `segments` und `pronunciations`. Lexikoneinträge erscheinen in `pronunciations` mit IPA, eigener `pronunciationHint`, Dialektangaben, Quell-URL und Prüfstatus `SOURCED`. Bei mehreren verschiedenen IPA-Varianten bleibt das einzelne `ipa`-Feld leer. Leere Eingaben, ungültiges JSON und noch nicht unterstützte Sprachen liefern HTTP 400 mit `code` und `message`; nicht abgedeckte Wörter liefern HTTP 422 (`UNSUPPORTED_ANALYSIS`).
 
 ## Prüfen
 

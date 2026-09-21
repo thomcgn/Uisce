@@ -25,6 +25,8 @@ class AnalysisControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.word").value("Dia"))
                 .andExpect(jsonPath("$.ipa").value("dʲiə"))
+                .andExpect(jsonPath("$.pronunciationHint").value("Di-e"))
+                .andExpect(jsonPath("$.pronunciations[0].pronunciationHint").value("Di-e"))
                 .andExpect(jsonPath("$.pronunciations[0].reviewStatus").value("SOURCED"))
                 .andExpect(jsonPath("$.segments").isEmpty());
     }
@@ -35,6 +37,7 @@ class AnalysisControllerTest {
                         .content("{\"word\":\"Sláinte\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.word").value("Sláinte"))
+                .andExpect(jsonPath("$.pronunciations[0].pronunciationHint").value("Slaan-che"))
                 .andExpect(jsonPath("$.pronunciations").isNotEmpty());
     }
 
@@ -75,5 +78,19 @@ class AnalysisControllerTest {
                         .content("{\"word\":\"Dia\"}"))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:3000"));
+    }
+
+    @Test
+    void canShowOnlyIpaOrRejectUnavailableNativeLanguage() throws Exception {
+        mvc.perform(post("/api/v1/analysis").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"word\":\"Dia\",\"nativeLanguage\":\"none\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.pronunciationHint").value(""))
+                .andExpect(jsonPath("$.pronunciationNotes").isEmpty())
+                .andExpect(jsonPath("$.pronunciations[0].pronunciationHint").value(""));
+        mvc.perform(post("/api/v1/analysis").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"word\":\"Dia\",\"nativeLanguage\":\"fr\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("UNSUPPORTED_LANGUAGE"));
     }
 }
