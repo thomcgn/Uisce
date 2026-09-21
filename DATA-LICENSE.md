@@ -6,4 +6,6 @@ Die Quelldaten stehen unter [CC BY-SA 4.0](https://creativecommons.org/licenses/
 
 Die Transkriptionen sind quellgebunden, aber nicht von diesem Projekt fachlich einzeln geprüft. Der Status in der Datenbank lautet deshalb `SOURCED` und darf nicht als unabhängige linguistische Verifikation dargestellt werden. Der übrige Quellcode ist von dieser Datenlizenz getrennt.
 
+Die Migration `V2__spelling_aliases.sql` enthält zusätzlich die quellenbelegte Zuordnung der veralteten Schreibweise `sidhe` zur heutigen Form `sí`. Quelle ist der [Wiktionary-Eintrag sidhe](https://en.wiktionary.org/wiki/sidhe#Irish), ebenfalls unter CC BY-SA 4.0. Die IPA wird aus dem separat belegten Eintrag `sí` übernommen; die Zuordnung wird in der API sichtbar gemacht.
+
 Der Eingabe-Datensatz hatte SHA-256 `dd87208b0ff81f13aae228761e32a54957d864a4d24a7daa85492b02d7435d69`; der erzeugte Datenauszug hat SHA-256 `ea73d7b0dafb3ce0081257937c88e5b7a720b163d2dec624ff233f4b3f96f4bd`. Der Filter kann mit `python scripts/build_irish_lexicon.py <download.jsonl> <output.tsv.gz>` erneut ausgeführt werden.

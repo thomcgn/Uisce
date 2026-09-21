@@ -22,6 +22,20 @@ export type Analysis = {
   ipa: string;
   pronunciationHint: string;
   pronunciationNotes: string[];
+  spelling: {
+    canonicalWord: string;
+    explanation: string;
+    sourceUrl: string;
+  } | null;
+  orthography: {
+    word: string;
+    segments: {
+      grapheme: string;
+      position: string;
+      quality: "BROAD" | "SLENDER" | null;
+      mutation: string;
+    }[];
+  } | null;
   segments: Segment[];
   pronunciations: Pronunciation[];
 };

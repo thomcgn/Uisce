@@ -89,6 +89,21 @@ class IrishPhoneticEngineTest {
     }
 
     @Test
+    void detectsLenitionInLexiconWordWithoutInventingSegmentIpa() {
+        var source = new PronunciationEntry("chonaic", "x", java.util.List.of(),
+                "https://example.org/chonaic", ReviewStatus.SOURCED);
+        var withLexicon = new IrishPhoneticEngine(new WordNormalizer(), new Tokenizer(),
+                new MutationDetector(), new QualityResolver(),
+                new SoundRuleEngine(new StandardIrishRuleSet()), word -> java.util.List.of(source));
+
+        var result = withLexicon.analyze("chonaic");
+
+        assertThat(result.orthography().orElseThrow().segments().getFirst().mutation())
+                .isEqualTo(Mutation.LENITION);
+        assertThat(result.segments()).isEmpty();
+    }
+
+    @Test
     void unsupportedWordsFailExplicitly() {
         assertThatThrownBy(() -> engine.analyze("lú"))
                 .isInstanceOf(UnsupportedAnalysisException.class);

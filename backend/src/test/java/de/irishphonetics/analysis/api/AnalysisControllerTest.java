@@ -28,6 +28,7 @@ class AnalysisControllerTest {
                 .andExpect(jsonPath("$.pronunciationHint").value("Di-e"))
                 .andExpect(jsonPath("$.pronunciations[0].pronunciationHint").value("Di-e"))
                 .andExpect(jsonPath("$.pronunciations[0].reviewStatus").value("SOURCED"))
+                .andExpect(jsonPath("$.orthography.word").value("Dia"))
                 .andExpect(jsonPath("$.segments").isEmpty());
     }
 
@@ -39,6 +40,20 @@ class AnalysisControllerTest {
                 .andExpect(jsonPath("$.word").value("Sláinte"))
                 .andExpect(jsonPath("$.pronunciations[0].pronunciationHint").value("Slaan-che"))
                 .andExpect(jsonPath("$.pronunciations").isNotEmpty());
+    }
+
+    @Test
+    void explainsTheObsoleteSpellingSidhe() throws Exception {
+        mvc.perform(post("/api/v1/analysis").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"word\":\"Sidhe\",\"nativeLanguage\":\"de\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.word").value("Sidhe"))
+                .andExpect(jsonPath("$.ipa").value("ʃiː"))
+                .andExpect(jsonPath("$.pronunciationHint").value("Schie"))
+                .andExpect(jsonPath("$.spelling.canonicalWord").value("sí"))
+                .andExpect(jsonPath("$.orthography.word").value("sí"))
+                .andExpect(jsonPath("$.spelling.sourceUrl")
+                        .value("https://en.wiktionary.org/wiki/sidhe#Irish"));
     }
 
     @Test

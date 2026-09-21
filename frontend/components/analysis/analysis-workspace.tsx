@@ -103,6 +103,7 @@ function AnalysisDetails({ analysis, nativeLanguage }: { analysis: Analysis; nat
       <header className="result-header"><div><p className="eyebrow">ANALYSE</p><h2>{analysis.word}</h2></div><span className="result-badge">IPA</span></header>
       {analysis.ipa ? <p className="main-ipa" aria-label={`IPA: ${analysis.ipa}`}>/{analysis.ipa}/</p>
         : <p className="variant-intro">{unique.length} belegte Aussprachen mit unterschiedlichen Dialektangaben.</p>}
+      {analysis.spelling && <p className="spelling-note">{analysis.spelling.explanation} Heutige Schreibweise: <strong>{analysis.spelling.canonicalWord}</strong>. <a href={analysis.spelling.sourceUrl} target="_blank" rel="noreferrer">Schreibweisen-Quelle ↗</a></p>}
       {analysis.pronunciationHint && <p className="hint"><strong>Deutsch angenähert:</strong> {analysis.pronunciationHint}</p>}
       {analysis.pronunciationNotes.length > 0 && <ul className="hint-notes">{analysis.pronunciationNotes.map((note) => <li key={note}>{note}</li>)}</ul>}
 
@@ -119,6 +120,16 @@ function AnalysisDetails({ analysis, nativeLanguage }: { analysis: Analysis; nat
 
       {nativeLanguage === "de" && <p className="guide-note">Die deutsche Schreibweise ist eine Lesehilfe. Breite und schmale irische Konsonanten kann sie nur annähernd wiedergeben. Fehlt eine unterstützte Übertragung, erscheint nur IPA.</p>}
 
+      {analysis.orthography && <section className="segments" aria-labelledby="orthography-title">
+        <div className="section-heading"><h3 id="orthography-title">Schreibweise und Mutationen</h3><span>{analysis.orthography.segments.length} Grapheme</span></div>
+        {analysis.orthography.word !== analysis.word && <p>Analysierte heutige Schreibweise: <strong>{analysis.orthography.word}</strong></p>}
+        <ul>{analysis.orthography.segments.map((segment, index) => <li key={`${segment.grapheme}-${index}`}>
+          <div className="grapheme">{segment.grapheme}</div>
+          <div><strong>{mutationLabel(segment.mutation)}</strong><p>{segment.quality === "BROAD" ? "Breit" : segment.quality === "SLENDER" ? "Schmal" : "Qualität offen"}</p></div>
+        </li>)}</ul>
+        <p className="source-note">Die Mutationsangabe beschreibt das erkennbare Schreibmuster. Ob eine grammatische Mutation vorliegt, hängt vom Satzkontext ab.</p>
+      </section>}
+
       {analysis.segments.length > 0 && <section className="segments" aria-labelledby="segments-title">
         <div className="section-heading"><h3 id="segments-title">Laute im Wort</h3><span>{analysis.segments.length} Segmente</span></div>
         <ul>{analysis.segments.map((segment, index) => <li key={`${segment.grapheme}-${index}`}>
@@ -128,4 +139,15 @@ function AnalysisDetails({ analysis, nativeLanguage }: { analysis: Analysis; nat
       </section>}
     </article>
   );
+}
+
+function mutationLabel(mutation: string): string {
+  switch (mutation) {
+    case "LENITION": return "Lenitionsmuster";
+    case "ECLIPSIS": return "Eklipse";
+    case "H_PREFIX": return "h-Vorsilbe";
+    case "T_PREFIX": return "t-Vorsilbe";
+    case "N_PREFIX": return "n-Vorsilbe";
+    default: return "Keine Mutation erkennbar";
+  }
 }

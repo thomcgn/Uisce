@@ -33,6 +33,8 @@ Backend: <http://localhost:8080>; Frontend: <http://localhost:3000>. Die Backend
 
 Auf der Startseite ein irisches Wort eingeben oder ein Beispiel wählen. Ein eindeutiger IPA-Wert wird groß angezeigt; bei mehreren verschiedenen Aussprachen erscheinen die Varianten einzeln. Nicht abgedeckte Wörter und Verbindungsprobleme werden als Fehlermeldung dargestellt.
 
+Auch belegte ältere Schreibweisen können auf heutige Formen verweisen. Beispielsweise wird `Sidhe` als veraltete Schreibweise von `sí` erkannt; die Antwort zeigt die Zuordnung samt Quelle, bevor sie die Aussprache von `sí` ausgibt. Schreibweisen werden nicht pauschal durch Entfernen von Fada oder Buchstaben umgewandelt.
+
 Im Feld **Deine Muttersprache** lässt sich derzeit `Deutsch` oder `Nur IPA` auswählen. Das deutsche Modul liefert eine vereinfachte Lesehilfe für unterstützte IPA-Zeichen, auch für einzelne Aussprachevarianten. Es ersetzt die IPA-Transkription nicht und bildet insbesondere die irische Unterscheidung zwischen breiten und schmalen Konsonanten nur annähernd ab. Für nicht unterstützte IPA-Zeichen bleibt die Lesehilfe leer. Weitere Sprachen können als eigenes `PronunciationGuide`-Modul ergänzt werden.
 
 Alle 14.970 IPA-Varianten des eingebundenen Lexikons erhalten eine deutsche Lesehilfe. Bei Lauten, die sich mit deutscher Schreibweise leicht verwechseln lassen, erscheinen zusätzliche Hinweise an der Variante, etwa `ch wie in Bach`, `ch wie in ich` oder ein Hinweis auf nasale Vokale. Diese Umschrift ist eine systematische Annäherung und keine fachlich geprüfte deutsche Lautung jedes Wortes.
@@ -42,6 +44,8 @@ Die Hinweise verwenden vertraute Beispielwörter: IPA `/dʒ/` wird als `dsch wie
 Die deutsche Hilfe liest die belegten Varianten von `Sláinte` beispielsweise als `Slaan-che`. Schmale Konsonanten erhalten nicht mehr pauschal ein angehängtes `j`; die Darstellung bleibt bewusst eine Annäherung.
 
 ## Analyse-API
+
+Auch bei Lexikontreffern analysiert die Engine die Schreibweise: `orthography` enthält das analysierte Wort und seine Grapheme mit Position, erkannter Vokalqualität (falls eindeutig) und Mutationsmuster. `LENITION` bezeichnet dabei ein erkennbares Schreibmuster wie `bh` oder `ch`; ob eine grammatische Lenition vorliegt, erfordert Satzkontext. Die IPA der Lexikontreffer bleibt quellengebunden. `segments` enthält nur Lautsegmente, für die geprüfte Einzelregeln vorliegen. Bei historischen Aliasformen wie `Sidhe` wird die heutige Form `sí` orthografisch analysiert.
 
 ```bash
 curl -s http://localhost:8080/api/v1/analysis \

@@ -11,11 +11,21 @@ import java.util.Optional;
 
 public record AnalysisResponse(String word, String ipa, String pronunciationHint,
                                List<String> pronunciationNotes,
+                               SpellingResponse spelling,
+                               OrthographyResponse orthography,
                                List<SegmentResponse> segments,
                                List<PronunciationResponse> pronunciations) {
     public static AnalysisResponse from(AnalysisResult result, Optional<PronunciationGuide> guide) {
         return new AnalysisResponse(result.word(), result.ipa(), hint(guide, result.ipa()),
                 notes(guide, result.ipa()),
+                result.spellingAlias().map(alias -> new SpellingResponse(
+                        alias.canonicalWord(), alias.explanation(), alias.sourceUrl()))
+                        .orElse(null),
+                result.orthography().map(item -> new OrthographyResponse(item.word(),
+                        item.segments().stream().map(segment -> new OrthographicSegmentResponse(
+                                segment.grapheme(), segment.position(),
+                                segment.quality().orElse(null), segment.mutation())).toList()))
+                        .orElse(null),
                 result.segments().stream().map(segment -> new SegmentResponse(
                         segment.context().grapheme(), segment.context().quality(),
                         segment.context().mutation(), segment.context().position(),
@@ -38,6 +48,16 @@ public record AnalysisResponse(String word, String ipa, String pronunciationHint
     public record SegmentResponse(String grapheme, Quality quality, Mutation mutation,
                                   Position position, String ipa, String pronunciationHint,
                                   String description) {
+    }
+
+    public record OrthographyResponse(String word, List<OrthographicSegmentResponse> segments) {
+    }
+
+    public record OrthographicSegmentResponse(String grapheme, Position position,
+                                              Quality quality, Mutation mutation) {
+    }
+
+    public record SpellingResponse(String canonicalWord, String explanation, String sourceUrl) {
     }
 
     public record PronunciationResponse(String ipa, String pronunciationHint,

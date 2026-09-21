@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import de.irishphonetics.analysis.domain.IrishPhoneticEngine;
 import de.irishphonetics.analysis.domain.ReviewStatus;
+import de.irishphonetics.phonology.domain.Mutation;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -54,6 +55,33 @@ class PronunciationLexiconIntegrationTest {
                 "baile", "mbaile", "bhfuil", "oíche", "Sláinte", "Dia", "teach", "tsráid"}) {
             assertThat(engine.analyze(word).pronunciations()).as(word).isNotEmpty();
         }
+    }
+
+    @Test
+    void recognizesMutationPatternsEvenWhenIpaComesFromLexicon() {
+        var eclipsed = engine.analyze("bhfuil");
+        assertThat(eclipsed.pronunciations()).isNotEmpty();
+        assertThat(eclipsed.segments()).isEmpty();
+        assertThat(eclipsed.orthography().orElseThrow().segments().getFirst().grapheme())
+                .isEqualTo("bhf");
+        assertThat(eclipsed.orthography().orElseThrow().segments().getFirst().mutation())
+                .isEqualTo(Mutation.ECLIPSIS);
+    }
+
+    @Test
+    void resolvesObsoleteSidheThroughItsSourcedModernSpelling() {
+        var result = engine.analyze("Sidhe");
+
+        assertThat(result.word()).isEqualTo("Sidhe");
+        assertThat(result.ipa()).isEqualTo("ʃiː");
+        assertThat(result.spellingAlias()).isPresent();
+        assertThat(result.spellingAlias().orElseThrow().canonicalWord()).isEqualTo("sí");
+        assertThat(result.spellingAlias().orElseThrow().sourceUrl())
+                .isEqualTo("https://en.wiktionary.org/wiki/sidhe#Irish");
+        assertThat(result.pronunciations()).isNotEmpty();
+        assertThat(result.orthography().orElseThrow().word()).isEqualTo("sí");
+        assertThat(result.orthography().orElseThrow().segments())
+                .noneMatch(segment -> segment.mutation() == Mutation.LENITION);
     }
 
     @Test

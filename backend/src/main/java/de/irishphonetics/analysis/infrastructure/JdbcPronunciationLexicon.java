@@ -3,8 +3,10 @@ package de.irishphonetics.analysis.infrastructure;
 import de.irishphonetics.analysis.domain.PronunciationEntry;
 import de.irishphonetics.analysis.domain.PronunciationLexicon;
 import de.irishphonetics.analysis.domain.ReviewStatus;
+import de.irishphonetics.analysis.domain.SpellingAlias;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -31,5 +33,17 @@ public class JdbcPronunciationLexicon implements PronunciationLexicon {
                 rs.getString("source_url"),
                 ReviewStatus.valueOf(rs.getString("review_status"))),
                 normalizedWord);
+    }
+
+    @Override
+    public Optional<SpellingAlias> findAlias(String normalizedWord) {
+        return jdbc.query("""
+                SELECT canonical_word, explanation, source_url
+                FROM spelling_alias
+                WHERE normalized_alias = ?
+                """, (rs, rowNum) -> new SpellingAlias(
+                rs.getString("canonical_word"),
+                rs.getString("explanation"),
+                rs.getString("source_url")), normalizedWord).stream().findFirst();
     }
 }

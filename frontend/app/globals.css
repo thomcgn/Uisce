@@ -70,6 +70,8 @@ h3 { margin-bottom: 13px; font-size: 1rem; }
 .language-choice select:focus-visible { outline: 3px solid #c58c45; outline-offset: 3px; }
 .variant-hint { flex-basis: 100%; color: #456956; font-size: .9rem; }
 .guide-note { margin: 20px 0 0; padding: 14px 16px; border-left: 3px solid #b7cdb7; background: #f5f8f2; color: #64776a; font-size: .84rem; line-height: 1.5; }
+.spelling-note { margin: 4px 0 22px; padding: 15px 18px; border-left: 3px solid #c58c45; background: #fbf5e9; color: #5f533c; line-height: 1.55; }
+.spelling-note a { color: #916b42; text-underline-offset: 3px; }
 .hint-notes { margin: -7px 0 20px; padding-left: 22px; color: #64776a; font-size: .84rem; }
 .variant-notes { flex-basis: 100%; color: #66796a; font-size: .8rem; line-height: 1.45; }
 @media (max-width: 600px) {

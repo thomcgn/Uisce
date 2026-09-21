@@ -21,6 +21,7 @@ public final class IrishPhoneticEngine {
     private final QualityResolver qualityResolver;
     private final SoundRuleEngine soundRuleEngine;
     private final PronunciationLexicon lexicon;
+    private final OrthographicAnalyzer orthographicAnalyzer;
 
     public IrishPhoneticEngine(WordNormalizer normalizer, Tokenizer tokenizer,
                               MutationDetector mutationDetector, QualityResolver qualityResolver,
@@ -38,13 +39,24 @@ public final class IrishPhoneticEngine {
         this.qualityResolver = Objects.requireNonNull(qualityResolver, "qualityResolver");
         this.soundRuleEngine = Objects.requireNonNull(soundRuleEngine, "soundRuleEngine");
         this.lexicon = Objects.requireNonNull(lexicon, "lexicon");
+        this.orthographicAnalyzer = new OrthographicAnalyzer(tokenizer, mutationDetector, qualityResolver);
     }
 
     public AnalysisResult analyze(String input) {
         String word = normalizer.normalize(input);
         List<PronunciationEntry> knownPronunciations = lexicon.find(word.toLowerCase(java.util.Locale.ROOT));
         if (!knownPronunciations.isEmpty()) {
-            return AnalysisResult.fromLexicon(word, knownPronunciations);
+            return AnalysisResult.fromLexicon(word, knownPronunciations,
+                    orthographicAnalyzer.analyze(word));
+        }
+        var alias = lexicon.findAlias(word.toLowerCase(java.util.Locale.ROOT));
+        if (alias.isPresent()) {
+            var target = lexicon.find(alias.get().canonicalWord()
+                    .toLowerCase(java.util.Locale.ROOT));
+            if (!target.isEmpty()) {
+                return AnalysisResult.fromLexicon(word, target, alias.get(),
+                        orthographicAnalyzer.analyze(alias.get().canonicalWord()));
+            }
         }
         List<GraphemeToken> tokens = tokenizer.tokenize(word);
         long vowelLetters = tokens.stream()
@@ -72,7 +84,8 @@ public final class IrishPhoneticEngine {
                 .collect(Collectors.joining());
         String hint = segments.stream().map(segment -> segment.rule().germanHint())
                 .filter(part -> !part.isBlank()).collect(Collectors.joining(" "));
-        return new AnalysisResult(word, ipa, hint, segments);
+        return new AnalysisResult(word, ipa, hint, segments, List.of(),
+                java.util.Optional.empty(), orthographicAnalyzer.analyze(word));
     }
 
     private Position position(int index, int count) {
